@@ -1,0 +1,34 @@
+{
+  "name": "elevate-content-engine-root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "node ./node_modules/typescript/bin/tsc --noEmit",
+    "lint": "node ./node_modules/eslint/bin/eslint.js .",
+    "test": "node --test 'packages/**/*.test.ts' 'apps/**/*.test.ts'",
+    "start": "node ./apps/api/src/index.ts",
+    "dev": "node ./apps/api/src/index.ts",
+    "format": "node ./node_modules/prettier/bin/prettier.cjs --write --no-error-on-unmatched-pattern 'packages/**/*.{ts,json}' 'apps/**/*.{ts,json}' 'eslint.config.js' 'tsconfig.json' 'package.json'",
+    "format:check": "node ./node_modules/prettier/bin/prettier.cjs --check --no-error-on-unmatched-pattern 'packages/**/*.{ts,json}' 'apps/**/*.{ts,json}' 'eslint.config.js' 'tsconfig.json' 'package.json'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.0",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.12.7",
+    "openai": "^4.104.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/node": "^22.10.0",
+    "eslint": "^9.18.0",
+    "prettier": "^3.4.2",
+    "typescript": "~5.7.3",
+    "typescript-eslint": "^8.20.0"
+  }
+}
