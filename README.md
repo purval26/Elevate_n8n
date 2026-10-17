@@ -1,18 +1,13 @@
-# ElevateWeb Content Engine (Phase 1)
+# ElevateWeb Content Engine (Phase 1 & Phase 2)
 
-> Modular, production-ready TypeScript backend API built with Fastify, Zod, the OpenAI SDK, and Supabase PostgreSQL. Generates validated, brand-aligned Instagram technology carousel packages and persists them for automated publishing.
+> Modular, production-ready TypeScript content backend API (Phase 1) and deterministic 1080 × 1350 px Instagram Visual Engine (Phase 2). Built with Fastify, Zod, OpenAI SDK, Supabase PostgreSQL, and native Resvg rendering.
 
 ---
 
 ## 1. Project Purpose
-ElevateWeb is a web development and systems engineering education brand. The ElevateWeb Content Engine is designed to automate the creation of high-quality, technically accurate daily Instagram carousel posts. 
-
-Phase 1 provides the foundational REST API backend that:
-- Accepts technical topics and content pillars.
-- Orchestrates OpenAI structured outputs using strict prompt guardrails.
-- Enforces a two-tier validation defense (sampling constraints + runtime schema verification).
-- Persists normalized relational records (topics, posts, slides, sources) in Supabase.
-- Exposes clean HTTP endpoints intended to be invoked by n8n automation workflows in subsequent phases.
+ElevateWeb is a web development and systems engineering education brand. The ElevateWeb Content Engine is designed to automate the creation of high-quality, technically accurate daily Instagram carousel posts:
+- **Phase 1 (Locked & Complete)**: Generates validated, structured `CarouselPackage` JSON via Fastify API, OpenAI structured outputs, and Supabase persistence.
+- **Phase 2 (Visual Engine)**: Deterministically renders `CarouselPackage` JSON into 1080 × 1350 px Instagram-ready portrait PNGs across 5 visual templates (Explainer, Comparison, Steps, Statement, Diagram).
 
 ---
 
@@ -26,10 +21,13 @@ Elevate_n8n/
 ├── packages/
 │   ├── types/                # Canonical Zod schemas & TypeScript DTOs
 │   ├── prompts/              # Brand voice rules & dynamic carousel prompt compiler
-│   └── content/              # OpenAI orchestration, 2-tier validation, Supabase persistence
+│   ├── content/              # OpenAI orchestration, 2-tier validation, Supabase persistence
+│   └── renderer/             # Phase 2 Visual Engine: SVG templates, text layout, Resvg/Playwright PNG engine
+├── examples/                 # Realistic carousel JSON examples for rendering & smoke tests
+├── output/                   # Default output destination for rendered 1080x1350 PNG slides
 ├── supabase/
 │   └── migrations/           # Idempotent PostgreSQL DDL with cascading deletes
-└── docs/                     # In-depth architectural & API documentation
+└── docs/                     # In-depth architectural, API, & visual engine documentation
 ```
 
 ### Key Architectural Highlights:
@@ -204,32 +202,62 @@ Or via SQL editor in the Supabase Dashboard.
 
 ---
 
-## 9. Testing
-The test suite is built on Node's native test runner (`node:test`, `node:assert/strict`) and executes 100% offline.
+## 9. Phase 2: Visual Engine & CLI Rendering
 
+The Phase 2 Visual Engine converts validated `CarouselPackage` JSON into high-resolution 1080 × 1350 px portrait PNGs.
+
+### Visual Templates:
+- **Explainer** (`explainer`): Technical concepts, educational posts, and "How X works".
+- **Comparison** (`comparison`): A vs B side-by-side grids with bottom tradeoff cards.
+- **Steps** (`steps`): Workflows, sequential breakdowns, top progress segments, and process cards.
+- **Statement** (`statement`): Bold quotes, hooks, principles, and ElevateWeb brand seal.
+- **Diagram** (`diagram`): Architecture flowcharts, multi-stage server request flows with vector arrows.
+
+### Local CLI Usage:
 ```bash
-# Run all unit and integration tests
-npm test
+# Render any carousel JSON into PNGs:
+npm run render -- ./examples/how-dns-works.json --output ./output/how-dns-works
 
-# Run integration tests specifically
-node --test 'apps/api/tests/**/*.test.ts'
+# Available Options:
+#   --output, -o <dir>      Output directory for rendered PNGs (default: ./output)
+#   --template, -t <name>   Template override (explainer, comparison, steps, statement, diagram)
+#   --help, -h              Show help message
 ```
 
-All external calls to OpenAI and Supabase are intercepted by mock clients:
-- `MockOpenAIClient`: Simulates OpenAI chat completions, rate limits, timeouts, and malformed outputs.
-- `MockSupabaseClient`: In-memory relational tables with foreign keys and cascading rollback simulation.
+### Provided Examples:
+- `examples/how-dns-works.json`: 6-slide architecture breakdown.
+- `examples/jwt-vs-cookies.json`: 6-slide security & tradeoff comparison.
+- `examples/docker-containers.json`: 5-slide containerization concepts.
+- `examples/react-vs-nextjs.json`: 5-slide frontend framework comparison.
+- `examples/api-request-flow.json`: 6-slide backend system architecture flow.
 
 ---
 
-## 10. What is Intentionally NOT Implemented Yet
-To preserve architectural boundaries and maintain production rigor, Phase 1 deliberately omits:
-1. **Instagram / Meta Graph API Publishing**: No social media publishing logic.
-2. **Telegram Approval Bot**: No notification bots or human-in-the-loop chat interfaces.
-3. **n8n Workflow Automation**: No n8n JSON canvas exports (the Fastify REST API is designed to be called by n8n in Phase 2).
-4. **Playwright / Image Rendering**: No HTML-to-image or React slide rendering engine.
-5. **AI Image Generation**: No DALL-E or Midjourney integrations.
-6. **Automatic Scheduling / Cron**: No unattended scheduling services.
-7. **Post Analytics**: No impressions, likes, or engagement tracking.
-8. **Public Authentication / User Accounts**: No multi-tenant user accounts or OAuth logins.
+## 10. Testing & Verification
 
-These components are scheduled for subsequent roadmap milestones.
+The test suite runs 100% offline via Node's native test runner (`node:test`, `node:assert/strict`) across all workspaces:
+
+```bash
+# Run all 178 unit, integration, and visual smoke tests
+npm test
+
+# Run renderer tests specifically
+node --test 'packages/renderer/tests/*.test.ts'
+```
+
+### Test Coverage Highlights:
+- **Phase 1 (134 tests)**: Schema validation, prompt compilation, mock OpenAI orchestration, database persistence, and cascading compensating rollbacks.
+- **Phase 2 (44 tests)**: Text wrapping, line clamping, CJK and multi-byte Unicode handling, template selection & fallbacks, 5/6/8-slide rendering, PNG byte inspection (1080 × 1350, 8-bit RGBA), and deterministic byte reproduction.
+
+---
+
+## 11. What is Intentionally NOT Implemented Yet
+
+To prevent over-engineering a personal automation tool, the following remain strictly out of scope for Phases 1 & 2:
+1. **Instagram / Meta Graph API Publishing**: No automatic social media publishing logic.
+2. **Telegram Approval Bot**: No notification bots or human-in-the-loop chat interfaces.
+3. **n8n Workflow Automation**: No n8n workflow canvas files (Phase 3).
+4. **AI Image Generation**: No DALL-E, Midjourney, or stock photography (diagrams are rendered programmatically via SVG).
+5. **Automatic Scheduling / Cron**: No unattended scheduling services.
+6. **Post Analytics**: No impressions, likes, or engagement tracking.
+7. **Public Authentication / Multi-Tenant / SaaS**: No user accounts, billing, or multi-tenant infrastructure.

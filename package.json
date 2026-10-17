@@ -13,10 +13,12 @@
     "test": "node --test 'packages/**/*.test.ts' 'apps/**/*.test.ts'",
     "start": "node ./apps/api/src/index.ts",
     "dev": "node ./apps/api/src/index.ts",
+    "render": "node ./packages/renderer/src/cli.ts",
     "format": "node ./node_modules/prettier/bin/prettier.cjs --write --no-error-on-unmatched-pattern 'packages/**/*.{ts,json}' 'apps/**/*.{ts,json}' 'eslint.config.js' 'tsconfig.json' 'package.json'",
     "format:check": "node ./node_modules/prettier/bin/prettier.cjs --check --no-error-on-unmatched-pattern 'packages/**/*.{ts,json}' 'apps/**/*.{ts,json}' 'eslint.config.js' 'tsconfig.json' 'package.json'"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@supabase/supabase-js": "^2.48.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.12.7",

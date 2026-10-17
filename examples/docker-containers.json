@@ -1,0 +1,48 @@
+{
+  "topic": {
+    "title": "Docker Containers Explained: How They Actually Work",
+    "pillar": "developer_tools"
+  },
+  "hook": "Docker containers are NOT lightweight virtual machines. They are isolated Linux processes.",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "hook",
+      "headline": "Docker Containers Explained: What They Actually Are",
+      "body": "Many engineers think containers bundle an entire guest operating system. In reality, a container is just an ordinary Linux process running in an isolated namespace.",
+      "visualSuggestion": "Container shipping box containing process PID with isolation shields"
+    },
+    {
+      "slideNumber": 2,
+      "type": "concept",
+      "headline": "Namespaces: Creating the Illusion of Isolation",
+      "body": "Linux namespaces partition kernel resources. PID namespaces give the container its own process tree (PID 1). NET namespaces provide a dedicated network stack, and MNT namespaces isolate the filesystem.",
+      "visualSuggestion": "Linux Kernel splitting PID, NET, MNT, and IPC namespaces"
+    },
+    {
+      "slideNumber": 3,
+      "type": "concept",
+      "headline": "Cgroups: Enforcing Hard Resource Limits",
+      "body": "Control Groups (cgroups) regulate hardware utilization. They ensure a rogue container cannot exhaust host RAM, CPU cycles, or disk I/O, preventing denial of service on shared clusters.",
+      "visualSuggestion": "Cgroup governor capping CPU percentage and memory quota bounds"
+    },
+    {
+      "slideNumber": 4,
+      "type": "breakdown",
+      "headline": "OverlayFS: How Layered Images Save Disk Space",
+      "body": "Docker images consist of read-only layers stacked via OverlayFS. When a container runs, Docker attaches a thin writable layer on top, using Copy-on-Write (CoW) to minimize storage.",
+      "visualSuggestion": "Read-only image layers stacked under a thin writable container layer"
+    },
+    {
+      "slideNumber": 5,
+      "type": "takeaway",
+      "headline": "Key Takeaway: Speed, Efficiency & Portability",
+      "body": "Because containers share the host Linux kernel directly, they boot in milliseconds with near-zero virtualization overhead. Understand the kernel primitives to master container debugging.",
+      "visualSuggestion": "Process execution speed benchmark vs full hypervisor VM boot"
+    }
+  ],
+  "caption": "Containers are not virtual machines! Discover the core Linux primitives—namespaces, cgroups, and OverlayFS—that power Docker and modern cloud deployments.",
+  "cta": "Did this change how you view Docker? Follow @elevateweb for more systems engineering breakdowns.",
+  "hashtags": ["#docker", "#devops", "#linux", "#cloudnative", "#containers"],
+  "sources": ["Linux Kernel Documentation: cgroups v2", "Docker Documentation: Underlying technology"]
+}

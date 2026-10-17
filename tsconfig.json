@@ -26,7 +26,8 @@
     "paths": {
       "@elevate/types": ["./packages/types/src/index.ts"],
       "@elevate/prompts": ["./packages/prompts/src/index.ts"],
-      "@elevate/content": ["./packages/content/src/index.ts"]
+      "@elevate/content": ["./packages/content/src/index.ts"],
+      "@elevate/renderer": ["./packages/renderer/src/index.ts"]
     }
   },
   "include": ["apps/**/*", "packages/**/*"],

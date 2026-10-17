@@ -1,0 +1,55 @@
+{
+  "topic": {
+    "title": "JWT vs Session Cookies: Authentication Tradeoffs",
+    "pillar": "security"
+  },
+  "hook": "Should you store auth state in a JWT or a traditional HTTP-only session cookie? The answer depends on your architecture.",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "hook",
+      "headline": "JWT vs Session Cookies: Which One Should You Pick?",
+      "body": "Authentication is the backbone of web security. Developers often debate between stateless JSON Web Tokens and stateful HTTP-only session cookies. Let's compare their core mechanics.",
+      "visualSuggestion": "Two contrasting architectural shields: Stateless Token vs Server Session"
+    },
+    {
+      "slideNumber": 2,
+      "type": "comparison",
+      "headline": "Stateless Tokens vs Stateful Sessions",
+      "body": "JWT encodes user claims inside a cryptographically signed payload that requires zero database lookups on the server. In contrast, Session Cookies store an opaque ID in the browser while maintaining session state and revocation records in Redis or Postgres.",
+      "visualSuggestion": "Client Decodes JWT Signature vs Database Query for Session ID"
+    },
+    {
+      "slideNumber": 3,
+      "type": "concept",
+      "headline": "The Revocation Problem: Invalidating Tokens",
+      "body": "Because JWTs are self-contained and stateless, immediately invalidating a compromised token before its expiration requires maintaining a blocklist—reintroducing the stateful database layer you tried to avoid.",
+      "visualSuggestion": "Token Blocklist vs Instant Session Table Deletion"
+    },
+    {
+      "slideNumber": 4,
+      "type": "comparison",
+      "headline": "Security & Storage Vulnerabilities",
+      "body": "JWTs stored in LocalStorage are vulnerable to Cross-Site Scripting (XSS). Session Cookies with HttpOnly and SameSite flags protect against XSS but require CSRF protection tokens.",
+      "visualSuggestion": "XSS attack vectors in browser storage vs CSRF SameSite cookie shields"
+    },
+    {
+      "slideNumber": 5,
+      "type": "architecture",
+      "headline": "The Hybrid Architecture: Best of Both Worlds",
+      "body": "Modern platforms use short-lived JWT access tokens (15-minute lifespan) paired with rotating refresh tokens stored securely in HTTP-only cookies.",
+      "visualSuggestion": "15-min Access Token -> HTTP-only Refresh Token -> Auth Gateway Rotation"
+    },
+    {
+      "slideNumber": 6,
+      "type": "takeaway",
+      "headline": "The Verdict: Default to Cookies for Monoliths",
+      "body": "For standard web applications, HTTP-only session cookies remain simpler and safer. Reserve JWTs for cross-domain microservices, mobile backends, and federated SSO APIs.",
+      "visualSuggestion": "ElevateWeb architecture recommendation stamp"
+    }
+  ],
+  "caption": "Choosing between JWT and session cookies? Here is the definitive engineering comparison covering scalability, security, revocation, and recommended hybrid architectures.",
+  "cta": "Which authentication model do you prefer in your stack? Share below and follow @elevateweb.",
+  "hashtags": ["#security", "#auth", "#jwt", "#webdev", "#softwareengineering"],
+  "sources": ["OWASP Session Management Cheat Sheet", "RFC 7519 - JSON Web Token"]
+}

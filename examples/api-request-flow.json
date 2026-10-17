@@ -1,0 +1,55 @@
+{
+  "topic": {
+    "title": "Life of an API Request: Client to Database and Back",
+    "pillar": "web_architecture"
+  },
+  "hook": "What actually happens when your app calls fetch('/api/users')? Follow the complete network and server lifecycle.",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "hook",
+      "headline": "The Life of an HTTP API Request: Step-by-Step",
+      "body": "When a frontend triggers an API call, the request traverses network gateways, SSL termination, reverse proxies, server middleware, and database pools before returning JSON.",
+      "visualSuggestion": "Client App firing HTTP request packet into network highway"
+    },
+    {
+      "slideNumber": 2,
+      "type": "architecture",
+      "headline": "Stage 1: DNS, TLS Handshake & Edge Gateways",
+      "body": "The browser resolves the domain via DNS and establishes an encrypted TLS 1.3 connection. The packet hits a Global Edge CDN or Reverse Proxy (e.g. Cloudflare / Nginx) for DDoS scrubbing and SSL offloading.",
+      "visualSuggestion": "Client -> Cloudflare Edge CDN -> Nginx Reverse Proxy"
+    },
+    {
+      "slideNumber": 3,
+      "type": "breakdown",
+      "headline": "Stage 2: Server Pipeline & Middleware Execution",
+      "body": "The request reaches the Fastify/Node backend. Middleware parses headers, validates CORS policies, authenticates the JWT session token, and sanitizes the request body using Zod schemas.",
+      "visualSuggestion": "CORS Check -> Auth Token Verification -> Zod Schema Validator"
+    },
+    {
+      "slideNumber": 4,
+      "type": "architecture",
+      "headline": "Stage 3: Database Connection Pool & Query Execution",
+      "body": "The controller borrows an idle connection from the PgBouncer pool, executes an indexed SQL query against PostgreSQL, transforms the database rows into DTOs, and releases the connection.",
+      "visualSuggestion": "Fastify Handler -> PgBouncer Connection Pool -> PostgreSQL Engine"
+    },
+    {
+      "slideNumber": 5,
+      "type": "concept",
+      "headline": "Stage 4: Response Serialization & Gzip Compression",
+      "body": "The server serializes the DTO into JSON, compresses the payload using Brotli or Gzip, attaches security headers (HSTS, Content-Security-Policy), and streams the 200 OK response back.",
+      "visualSuggestion": "JSON Serialization -> Gzip Compression -> HTTP 200 OK Stream"
+    },
+    {
+      "slideNumber": 6,
+      "type": "takeaway",
+      "headline": "Summary: Resilient Architecture Powers Speed",
+      "body": "Understanding every hop in the request pipeline allows you to optimize latency at the right layer—from edge caching to connection pooling. Build systems with intention.",
+      "visualSuggestion": "ElevateWeb full-stack architecture diagram seal"
+    }
+  ],
+  "caption": "Follow the journey of an HTTP API request! From DNS resolution and edge proxies down to database connection pooling and serialized response streams.",
+  "cta": "Which step in this pipeline do you spend the most time optimizing? Save this post and follow @elevateweb.",
+  "hashtags": ["#backend", "#api", "#systemdesign", "#webdev", "#softwarearchitecture"],
+  "sources": ["High Performance Browser Networking - Ilya Grigorik", "Fastify Documentation: Lifecycle Hooks"]
+}

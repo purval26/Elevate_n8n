@@ -1,0 +1,48 @@
+{
+  "topic": {
+    "title": "React vs Next.js: Library vs Full-Stack Framework",
+    "pillar": "web_architecture"
+  },
+  "hook": "React is a UI library. Next.js is a complete full-stack framework. Here is when to use each.",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "hook",
+      "headline": "React vs Next.js: Understanding the Core Difference",
+      "body": "Every web developer encounters the choice: start with pure client-side React (Vite) or adopt full-stack Next.js. The right choice depends on your rendering and SEO needs.",
+      "visualSuggestion": "React atomic icon vs Next.js full-stack framework shield"
+    },
+    {
+      "slideNumber": 2,
+      "type": "comparison",
+      "headline": "Client Rendering vs Full-Stack Capabilities",
+      "body": "Pure React runs entirely in the client browser, relying on Single Page Application (SPA) routing and client-side data fetching. Next.js provides hybrid rendering: Server Components, Server-Side Rendering (SSR), Static Generation (SSG), and API routes out of the box.",
+      "visualSuggestion": "Client Browser Execution vs Node.js Server Runtime Rendering"
+    },
+    {
+      "slideNumber": 3,
+      "type": "architecture",
+      "headline": "SEO & Initial Page Load Performance",
+      "body": "Client React downloads an empty HTML shell and large JavaScript bundle before rendering content. Next.js streams pre-rendered HTML from the server, improving Time to First Byte (TTFB) and search engine discoverability.",
+      "visualSuggestion": "Empty HTML bundle wait vs Server Rendered Pre-built HTML Stream"
+    },
+    {
+      "slideNumber": 4,
+      "type": "breakdown",
+      "headline": "Operational Complexity & Deployment",
+      "body": "A pure React SPA can be hosted on static edge CDNs (Cloudflare Pages, S3) for pennies with zero server maintenance. Next.js requires a Node.js server or specialized edge compute runtime (Vercel, AWS ECS) for dynamic SSR.",
+      "visualSuggestion": "Static CDN Edge bucket vs Dedicated Node Server Infrastructure"
+    },
+    {
+      "slideNumber": 5,
+      "type": "takeaway",
+      "headline": "Decision Matrix: When to Pick Which",
+      "body": "Choose pure React (Vite) for authenticated dashboards, offline PWAs, or internal tools. Choose Next.js for content-heavy sites, public e-commerce, and platforms requiring aggressive SEO and fast first-load times.",
+      "visualSuggestion": "ElevateWeb decision flowchart and architectural guide"
+    }
+  ],
+  "caption": "Library vs Framework: The definitive comparison between React and Next.js. Understand rendering modes, SEO implications, and deployment tradeoffs before starting your next project.",
+  "cta": "What does your current production stack use? Leave a comment and follow @elevateweb.",
+  "hashtags": ["#react", "#nextjs", "#javascript", "#webdev", "#frontend"],
+  "sources": ["React Documentation: Describing the UI", "Next.js Documentation: App Router Architecture"]
+}

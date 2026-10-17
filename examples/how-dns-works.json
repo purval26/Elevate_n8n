@@ -1,0 +1,55 @@
+{
+  "topic": {
+    "title": "How DNS Works Behind the Scenes",
+    "pillar": "web_architecture"
+  },
+  "hook": "Ever wondered what happens between typing a URL and seeing the page load? It starts with DNS.",
+  "slides": [
+    {
+      "slideNumber": 1,
+      "type": "hook",
+      "headline": "How DNS Works: The Internet's Phonebook Explained",
+      "body": "Every website lives on an IP address like 192.0.2.1. Humans remember domain names; computers only understand numbers. DNS bridges that gap in milliseconds.",
+      "visualSuggestion": "Browser typing elevateweb.io translating into binary IP address packets"
+    },
+    {
+      "slideNumber": 2,
+      "type": "concept",
+      "headline": "Step 1: The Recursive Resolver Lookup",
+      "body": "When you hit Enter, your browser first checks its local cache. If empty, the query travels to your ISP or cloud recursive resolver (like 1.1.1.1 or 8.8.8.8).",
+      "visualSuggestion": "Browser Cache -> OS Resolver -> ISP Recursive DNS Resolver"
+    },
+    {
+      "slideNumber": 3,
+      "type": "architecture",
+      "headline": "The Hierarchical Tree: Root & TLD Servers",
+      "body": "The resolver queries the 13 Root Server clusters, which direct it to the Top-Level Domain (TLD) servers managing .com, .io, or .org extensions.",
+      "visualSuggestion": "Root Servers (.) -> TLD Nameservers (.io) -> Authoritative Nameservers"
+    },
+    {
+      "slideNumber": 4,
+      "type": "breakdown",
+      "headline": "Authoritative Nameservers Hold the Final Answer",
+      "body": "The TLD server directs the query to the domain's authoritative nameservers (e.g. Cloudflare or Route 53), which return the final A or AAAA record containing the server's IP address.",
+      "visualSuggestion": "Authoritative DNS Record Lookup returning 104.21.55.2"
+    },
+    {
+      "slideNumber": 5,
+      "type": "concept",
+      "headline": "Caching: Why Subsequent Requests Are Instant",
+      "body": "Every DNS record comes with a Time To Live (TTL). Your browser and local resolver cache the IP for this duration, eliminating external roundtrips for future requests.",
+      "visualSuggestion": "TTL countdown timer and local high-speed cache hit"
+    },
+    {
+      "slideNumber": 6,
+      "type": "takeaway",
+      "headline": "Summary: DNS Powers Every Modern Web Request",
+      "body": "In less than 50ms, a hierarchical chain of four distinct server layers resolves human names into machine IPs. Follow ElevateWeb for deep-dive systems engineering.",
+      "visualSuggestion": "ElevateWeb architecture seal and systems takeaway badge"
+    }
+  ],
+  "caption": "How does your browser know where a website lives? Here is the complete breakdown of DNS resolution from root servers to authoritative nameservers.",
+  "cta": "Save this guide and follow @elevateweb for more engineering deep-dives.",
+  "hashtags": ["#dns", "#networking", "#webdevelopment", "#systemsengineering", "#softwareengineering"],
+  "sources": ["RFC 1034 - Domain Names Concepts and Facilities", "Cloudflare DNS Learning Center"]
+}
