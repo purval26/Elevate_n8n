@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import { renderCarousel } from './render.ts';
+import { renderCarousel, renderAiCarousel } from './render.ts';
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -11,14 +11,17 @@ async function main(): Promise<void> {
 ElevateWeb Carousel Renderer CLI
 Usage:
   npm run render -- <path-to-carousel.json> [options]
+  npm run render-ai -- <path-to-carousel.json> [options]
 
 Options:
+  --ai                    Enable AI Visual Director + Illustration Engine (Phase 2.5)
   --output, -o <dir>      Output directory for rendered PNGs (default: ./output)
   --template, -t <name>   Template override (explainer, comparison, steps, statement, diagram)
   --help, -h              Show this help message
 
-Example:
+Examples:
   npm run render -- ./examples/how-dns-works.json --output ./output
+  npm run render-ai -- ./examples/how-dns-works.json --output ./output/ai-dns
 `);
     process.exit(0);
   }
@@ -26,6 +29,7 @@ Example:
   let inputPath = '';
   let outputDir = './output';
   let templateOverride: string | undefined;
+  let useAi = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
@@ -33,6 +37,8 @@ Example:
       outputDir = args[++i] || './output';
     } else if (arg === '--template' || arg === '-t') {
       templateOverride = args[++i];
+    } else if (arg === '--ai') {
+      useAi = true;
     } else if (!arg.startsWith('-')) {
       inputPath = arg;
     }
@@ -67,22 +73,33 @@ Example:
     process.exit(1);
   }
 
-  console.log(`\n🚀 Rendering ElevateWeb Carousel from: ${path.basename(resolvedInput)}`);
+  const modeStr = useAi ? 'AI Visual Director Mode (Phase 2.5)' : 'Deterministic Template Mode';
+  console.log(
+    `\n🚀 Rendering ElevateWeb Carousel [${modeStr}] from: ${path.basename(resolvedInput)}`,
+  );
   const startTime = Date.now();
 
   try {
-    const result = await renderCarousel(carouselData, {
-      outputDir,
-      templateOverride,
-    });
+    const result = useAi
+      ? await renderAiCarousel(carouselData, {
+          outputDir,
+          saveVisualSpec: true,
+        })
+      : await renderCarousel(carouselData, {
+          outputDir,
+          templateOverride,
+        });
 
     const elapsedMs = Date.now() - startTime;
     console.log(`\n✨ Successfully rendered ${result.totalSlides} slides in ${elapsedMs}ms!`);
     console.log(`📁 Output Directory: ${result.outputDir}\n`);
 
     result.slides.forEach((slide) => {
+      const extra = slide.composition
+        ? ` [Composition: ${slide.composition} | Strategy: ${slide.visualStrategy}]`
+        : ` [Template: ${slide.templateName}]`;
       console.log(
-        `  • slide-${String(slide.slideNumber).padStart(2, '0')}.png (${slide.width}x${slide.height}) [Template: ${slide.templateName}]`,
+        `  • slide-${String(slide.slideNumber).padStart(2, '0')}.png (${slide.width}x${slide.height})${extra}`,
       );
     });
     console.log('');

@@ -1,0 +1,15 @@
+{
+  "name": "@elevate/visual-director",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@elevate/types": "1.0.0",
+    "openai": "^4.104.0",
+    "zod": "^3.24.2"
+  }
+}

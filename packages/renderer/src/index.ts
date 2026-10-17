@@ -1,9 +1,12 @@
 export {
   renderCarousel,
+  renderAiCarousel,
   type RenderCarouselOptions,
+  type RenderAiCarouselOptions,
   type RenderCarouselResult,
   type RenderSlideResult,
 } from './render.ts';
+export { renderVisualSpecToSvg, type VisualSpecRenderOptions } from './visualSpecRenderer.ts';
 
 export { selectTemplate, TEMPLATES } from './templateSelector.ts';
 export type { SlideTemplate, SlideRenderContext } from './templates/types.ts';

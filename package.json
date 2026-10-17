@@ -14,6 +14,8 @@
     "start": "node ./apps/api/src/index.ts",
     "dev": "node ./apps/api/src/index.ts",
     "render": "node ./packages/renderer/src/cli.ts",
+    "render-ai": "node ./packages/renderer/src/cli.ts --ai",
+    "visual-design": "node ./packages/visual-director/src/cli.ts",
     "format": "node ./node_modules/prettier/bin/prettier.cjs --write --no-error-on-unmatched-pattern 'packages/**/*.{ts,json}' 'apps/**/*.{ts,json}' 'eslint.config.js' 'tsconfig.json' 'package.json'",
     "format:check": "node ./node_modules/prettier/bin/prettier.cjs --check --no-error-on-unmatched-pattern 'packages/**/*.{ts,json}' 'apps/**/*.{ts,json}' 'eslint.config.js' 'tsconfig.json' 'package.json'"
   },
