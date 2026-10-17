@@ -2,10 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import type { RenderEngine, RenderEngineOptions } from './types.ts';
 import { DIMENSIONS } from '../design/tokens.ts';
 
 const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface ResvgInstance {
   render(): { asPng(): Uint8Array; width: number; height: number };
@@ -78,6 +81,45 @@ function getResvgClass(): ResvgConstructor {
 }
 
 /**
+ * Discovers bundled font files (Outfit, Space Mono) and optional environment CJK fallbacks.
+ */
+export function getBundledFontFiles(): string[] {
+  const candidateDirs = [
+    path.resolve(__dirname, '../../assets/fonts'),
+    path.resolve(process.cwd(), 'packages/renderer/assets/fonts'),
+  ];
+
+  const fontFiles: string[] = [];
+  for (const dir of candidateDirs) {
+    if (fs.existsSync(dir)) {
+      const files = fs
+        .readdirSync(dir)
+        .filter((f) => f.endsWith('.ttf') || f.endsWith('.otf'))
+        .map((f) => path.join(dir, f));
+      if (files.length > 0) {
+        fontFiles.push(...files);
+        break;
+      }
+    }
+  }
+
+  // Optional CJK system font fallback for Asian scripts if present in environment
+  const cjkCandidates = [
+    '/system/fonts/NotoSansCJK-Regular.ttc',
+    '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+    '/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc',
+  ];
+  for (const cjk of cjkCandidates) {
+    if (fs.existsSync(cjk)) {
+      fontFiles.push(cjk);
+      break;
+    }
+  }
+
+  return fontFiles;
+}
+
+/**
  * High-performance, deterministic native SVG-to-PNG renderer based on resvg.
  * Operates offline with zero browser dependencies.
  */
@@ -96,8 +138,16 @@ export class ResvgRenderEngine implements RenderEngine {
   renderSvgToPng(svg: string, options?: RenderEngineOptions): Buffer {
     const width = options?.width ?? DIMENSIONS.width;
     const ResvgClass = getResvgClass();
+    const fontFiles = getBundledFontFiles();
     const resvg = new ResvgClass(svg, {
       fitTo: { mode: 'width', value: width },
+      font: {
+        fontFiles,
+        loadSystemFonts: false,
+        defaultFontFamily: 'Outfit',
+        sansSerifFamily: 'Outfit',
+        monospaceFamily: 'Space Mono',
+      },
     });
     const rendered = resvg.render();
     return Buffer.from(rendered.asPng());

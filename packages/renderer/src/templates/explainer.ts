@@ -90,7 +90,7 @@ export const explainerTemplate: SlideTemplate = {
       
       <!-- Diagram Icon & Technical Highlights -->
       <circle cx="100" cy="140" r="28" fill="#1E293B" stroke="${COLORS.text.accent}" stroke-width="2" />
-      <text x="100" y="148" text-anchor="middle" fill="${COLORS.text.accent}" font-family="${TYPOGRAPHY.fontFamily.sans}" font-size="24" font-weight="700">⚡</text>
+      <polygon points="103,126 94,141 101,141 97,154 108,138 101,138" fill="${COLORS.text.accent}" />
       
       <text x="150" y="136" fill="${COLORS.text.primary}" font-family="${TYPOGRAPHY.fontFamily.sans}" font-size="24" font-weight="600">KEY TAKEAWAY</text>
       <text x="150" y="162" fill="${COLORS.text.accent}" font-family="${TYPOGRAPHY.fontFamily.mono}" font-size="18">${escapeXml(slide.type.toUpperCase())}</text>

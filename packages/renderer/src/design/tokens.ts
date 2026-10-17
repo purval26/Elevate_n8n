@@ -50,10 +50,10 @@ export const COLORS = {
 export const TYPOGRAPHY = {
   fontFamily: {
     sans: 'Outfit, system-ui, -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif',
-    mono: 'ui-monospace, Menlo, Monaco, Consolas, monospace',
+    mono: 'Space Mono, ui-monospace, Menlo, Monaco, Consolas, monospace',
   },
   fontSize: {
-    eyebrow: 22,
+    eyebrow: 16,
     headlineLarge: 58,
     headlineMedium: 46,
     headlineSmall: 36,

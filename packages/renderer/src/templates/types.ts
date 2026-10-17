@@ -26,6 +26,7 @@ export function createSvgShell(context: SlideRenderContext, innerContent: string
   const currentNum = String(slide.slideNumber).padStart(2, '0');
   const totalNum = String(totalSlides).padStart(2, '0');
   const category = (topic.pillar || 'Tech Explained').replace(/_/g, ' ').toUpperCase();
+  const pillWidth = Math.max(200, Math.ceil(category.length * 11 + 65));
 
   return `<svg width="${DIMENSIONS.width}" height="${DIMENSIONS.height}" viewBox="0 0 ${DIMENSIONS.width} ${DIMENSIONS.height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -74,7 +75,7 @@ export function createSvgShell(context: SlideRenderContext, innerContent: string
   <!-- Header Section -->
   <g id="header">
     <!-- Category Eyebrow Pill -->
-    <rect x="80" y="76" width="220" height="38" rx="19" fill="#1E293B" stroke="${COLORS.border.medium}" stroke-width="1.5" />
+    <rect x="80" y="76" width="${pillWidth}" height="38" rx="19" fill="#1E293B" stroke="${COLORS.border.medium}" stroke-width="1.5" />
     <circle cx="102" cy="95" r="5" fill="${COLORS.text.accent}" />
     <text x="116" y="101" fill="${COLORS.text.accent}" font-family="${TYPOGRAPHY.fontFamily.sans}" font-size="${TYPOGRAPHY.fontSize.eyebrow}" font-weight="700" letter-spacing="1.5">${escapeXml(category)}</text>
 

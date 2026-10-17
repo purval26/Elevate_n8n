@@ -119,7 +119,7 @@ export const stepsTemplate: SlideTemplate = {
         <text x="150" y="78" text-anchor="middle" fill="${COLORS.text.muted}" font-family="${TYPOGRAPHY.fontFamily.mono}" font-size="16">INPUT STATE</text>
 
         <!-- Arrow 1 -->
-        <text x="300" y="80" text-anchor="middle" fill="${COLORS.text.accent}" font-size="28">→</text>
+        <path d="M 285 70 L 315 70 M 307 62 L 315 70 L 307 78" stroke="${COLORS.text.accent}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
 
         <!-- Active Center Block -->
         <rect x="340" y="25" width="240" height="90" rx="10" fill="#172554" stroke="${COLORS.text.accent}" stroke-width="2" />
@@ -127,7 +127,7 @@ export const stepsTemplate: SlideTemplate = {
         <text x="460" y="94" text-anchor="middle" fill="${COLORS.text.primary}" font-family="${TYPOGRAPHY.fontFamily.sans}" font-size="18" font-weight="600">${escapeXml(slide.type.toUpperCase())}</text>
 
         <!-- Arrow 2 -->
-        <text x="620" y="80" text-anchor="middle" fill="${COLORS.text.accent}" font-size="28">→</text>
+        <path d="M 605 70 L 635 70 M 627 62 L 635 70 L 627 78" stroke="${COLORS.text.accent}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" />
 
         <!-- Output Block -->
         <rect x="660" y="35" width="220" height="70" rx="8" fill="#1E293B" stroke="${COLORS.border.medium}" stroke-width="1.5" />
