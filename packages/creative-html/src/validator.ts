@@ -7,7 +7,24 @@ const EXTERNAL_URL_REGEX =
   /(?:href|src|url)\s*=\s*["']\s*https?:\/\/[^"']*["']|url\(\s*['"]?https?:\/\/[^)'"]*['"]?\)/gi;
 const IFRAME_REGEX = /<iframe\b/gi;
 const FORM_REGEX = /<form\b/gi;
-const SLIDE_TAG_REGEX = /<section[^>]*class=["'][^"']*\bslide\b[^"']*["'][^>]*>/gi;
+/**
+ * Counts top-level slide elements in HTML by checking for the exact class token "slide"
+ * on section or div elements, avoiding false positive matches on "slide-body", "slide-header", etc.
+ */
+export function countSlides(html: string): number {
+  const matches = html.match(/<(?:section|div)[^>]*\bclass=["']([^"']+)["'][^>]*>/gi) || [];
+  let count = 0;
+  for (const match of matches) {
+    const classMatch = match.match(/\bclass=["']([^"']+)["']/i);
+    if (classMatch && classMatch[1]) {
+      const classes = classMatch[1].trim().split(/\s+/);
+      if (classes.includes('slide')) {
+        count++;
+      }
+    }
+  }
+  return count;
+}
 
 /**
  * Validates a generated carousel HTML document for safety, structural integrity,
@@ -67,8 +84,7 @@ export function validateCarouselHtml(html: string): HtmlValidationResult {
   }
 
   // 4. Validate slide count and slide class
-  const slideMatches = html.match(SLIDE_TAG_REGEX) || [];
-  const slideCount = slideMatches.length;
+  const slideCount = countSlides(html);
 
   if (slideCount === 0) {
     errors.push(

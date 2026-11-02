@@ -32,6 +32,24 @@ function escapeHtml(str: string): string {
 }
 
 /**
+ * Sanitizes an API key string, filtering out empty values or template placeholders.
+ */
+function sanitizeApiKey(key?: string): string | undefined {
+  if (!key) return undefined;
+  const trimmed = key.trim();
+  if (
+    trimmed.startsWith('your_') ||
+    trimmed.startsWith('<') ||
+    trimmed === 'undefined' ||
+    trimmed === 'null' ||
+    trimmed.length < 10
+  ) {
+    return undefined;
+  }
+  return trimmed;
+}
+
+/**
  * Applies semantic accent highlighting to 1-3 key technical phrases in a headline or text.
  */
 function applySemanticAccents(text: string): string {
@@ -100,16 +118,20 @@ export class HtmlCreativeDesigner {
    * Generates a complete self-contained HTML document for the given CarouselPackage.
    */
   async generateCarouselHtml(carouselPackage: CarouselPackage): Promise<string> {
-    const isOffline =
-      this.options.offline ??
-      (this.options.openAiClient ||
-      this.options.apiKey ||
-      this.options.openRouterApiKey ||
-      this.options.openAiApiKey ||
-      process.env.OPENROUTER_API_KEY ||
-      process.env.OPENAI_API_KEY
-        ? false
-        : true);
+    const rawOpenRouterKey = sanitizeApiKey(
+      this.options.openRouterApiKey || process.env.OPENROUTER_API_KEY,
+    );
+    const rawOpenAiKey = sanitizeApiKey(
+      this.options.openAiApiKey || this.options.apiKey || process.env.OPENAI_API_KEY,
+    );
+    const hasAnyKey = Boolean(
+      this.options.openAiClient ||
+      sanitizeApiKey(this.options.apiKey) ||
+      rawOpenRouterKey ||
+      rawOpenAiKey,
+    );
+
+    const isOffline = this.options.offline ?? !hasAnyKey;
 
     if (!isOffline) {
       const llmHtml = await this.tryGenerateWithLlm(carouselPackage);
@@ -125,10 +147,21 @@ export class HtmlCreativeDesigner {
    * Attempts live creative HTML generation using configured OpenRouter or OpenAI model.
    */
   private async tryGenerateWithLlm(carouselPackage: CarouselPackage): Promise<string | null> {
-    const openRouterKey = this.options.openRouterApiKey || process.env.OPENROUTER_API_KEY;
-    const openAiKey =
-      this.options.openAiApiKey || this.options.apiKey || process.env.OPENAI_API_KEY;
-    const apiKey = this.options.apiKey || openRouterKey || openAiKey;
+    let openRouterKey = sanitizeApiKey(
+      this.options.openRouterApiKey || process.env.OPENROUTER_API_KEY,
+    );
+    let openAiKey = sanitizeApiKey(
+      this.options.openAiApiKey || this.options.apiKey || process.env.OPENAI_API_KEY,
+    );
+
+    // If openAiKey starts with sk-or- (common user config mistake), treat it as openRouterKey
+    if (!openRouterKey && openAiKey && openAiKey.startsWith('sk-or-')) {
+      openRouterKey = openAiKey;
+      openAiKey = undefined;
+    }
+
+    const explicitApiKey = sanitizeApiKey(this.options.apiKey);
+    const apiKey = explicitApiKey || openRouterKey || openAiKey;
 
     if (!apiKey && !this.options.openAiClient) {
       return null;
@@ -140,10 +173,15 @@ export class HtmlCreativeDesigner {
 
     if (openRouterKey || (apiKey && apiKey.startsWith('sk-or-'))) {
       baseURL = baseURL || process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-      model = model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra:free';
+      model = model || process.env.OPENROUTER_MODEL || 'cohere/north-mini-code:free';
     } else {
       baseURL = baseURL || process.env.OPENAI_BASE_URL || undefined;
       model = model || process.env.OPENAI_MODEL || 'gpt-4o';
+    }
+
+    // Alias common model names to exact OpenRouter endpoints
+    if (model === 'nvidia/nemotron-3-ultra:free') {
+      model = 'cohere/north-mini-code:free';
     }
 
     try {
@@ -152,7 +190,7 @@ export class HtmlCreativeDesigner {
         new OpenAI({
           apiKey: apiKey || 'mock-key',
           baseURL: baseURL || undefined,
-          timeout: 60000,
+          timeout: 180000,
           maxRetries: 2,
         });
 
@@ -163,10 +201,12 @@ export class HtmlCreativeDesigner {
           { role: 'user', content: buildHtmlDesignerUserPrompt(carouselPackage) },
         ],
         temperature: 0.7,
+        max_tokens: 16384,
       });
 
       const choiceText = response.choices?.[0]?.message?.content?.trim();
       if (!choiceText) {
+        console.warn(`[CreativeHTML LLM] Empty response received from model ${model}.`);
         return null;
       }
 
@@ -177,6 +217,21 @@ export class HtmlCreativeDesigner {
         cleanedHtml = cleanedHtml.replace(/^[\s\S]*?```\s*/, '').replace(/```[\s\S]*$/, '');
       }
       cleanedHtml = cleanedHtml.trim();
+
+      // Extract HTML document if preceded or followed by non-HTML text
+      const docTypeIndex = cleanedHtml.toLowerCase().indexOf('<!doctype html');
+      if (docTypeIndex !== -1) {
+        cleanedHtml = cleanedHtml.slice(docTypeIndex);
+      } else {
+        const htmlIndex = cleanedHtml.toLowerCase().indexOf('<html');
+        if (htmlIndex !== -1) {
+          cleanedHtml = cleanedHtml.slice(htmlIndex);
+        }
+      }
+      const closeHtmlIndex = cleanedHtml.toLowerCase().lastIndexOf('</html>');
+      if (closeHtmlIndex !== -1) {
+        cleanedHtml = cleanedHtml.slice(0, closeHtmlIndex + 7);
+      }
 
       if (!cleanedHtml.toLowerCase().startsWith('<!doctype html>')) {
         cleanedHtml = `<!doctype html>\n${cleanedHtml}`;
@@ -194,9 +249,14 @@ export class HtmlCreativeDesigner {
       if (!cleanedHtml.includes('id="Layer_1"')) {
         const logoMark = getElevateLogoSvg(28);
         cleanedHtml = cleanedHtml.replace(
-          /<section class="slide"[^>]*>/g,
-          (match) =>
-            `${match}\n  <div class="brand-signature" style="position:absolute;top:70px;right:80px;z-index:20;display:flex;align-items:center;gap:10px;">${logoMark}<span style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;letter-spacing:2px;color:#F8FAFC;">ELEVATEWEB</span></div>`,
+          /(<(?:section|div)[^>]*\bclass=["'][^"']*\b(?<!-)slide(?!-)[^"']*["'][^>]*>)/gi,
+          (match) => {
+            const classMatch = match.match(/\bclass=["']([^"']+)["']/i);
+            const classes =
+              classMatch && classMatch[1] ? classMatch[1].trim().split(/\s+/) : [];
+            if (!classes.includes('slide')) return match;
+            return `${match}\n  <div class="brand-signature" style="position:absolute;top:70px;right:80px;z-index:20;display:flex;align-items:center;gap:10px;">${logoMark}<span style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;letter-spacing:2px;color:#F8FAFC;">ELEVATEWEB</span></div>`;
+          },
         );
       }
 

@@ -48,7 +48,9 @@ async function main(): Promise<void> {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
-    if (arg === '-o' || arg === '--output') {
+    if (arg === '-i' || arg === '--input') {
+      inputPath = args[++i] || inputPath;
+    } else if (arg === '-o' || arg === '--output') {
       outputDir = args[++i] || outputDir;
     } else if (arg === '--offline') {
       offline = true;
@@ -89,12 +91,24 @@ async function main(): Promise<void> {
   }
 
   // Determine provider mode for terminal banner
-  const hasKey = apiKey || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
-  const isRunningLive = offline === false || (offline === undefined && Boolean(hasKey));
+  const cleanKey = (key?: string) =>
+    key && !key.startsWith('your_') && !key.startsWith('<') && key.length > 10 ? key : undefined;
+  const orKey = cleanKey(process.env.OPENROUTER_API_KEY);
+  const oaKey = cleanKey(process.env.OPENAI_API_KEY);
+  const cliKey = cleanKey(apiKey);
+  const effectiveKey = cliKey || orKey || oaKey;
+
+  const isRunningLive = offline === false || (offline === undefined && Boolean(effectiveKey));
+  const isOpenRouter = Boolean(orKey || (effectiveKey && effectiveKey.startsWith('sk-or-')));
+  const defaultModel = isOpenRouter
+    ? process.env.OPENROUTER_MODEL || 'cohere/north-mini-code:free'
+    : process.env.OPENAI_MODEL || 'gpt-4o';
+  const displayModel = model || defaultModel;
+
   const providerLabel = isRunningLive
-    ? process.env.OPENROUTER_API_KEY || (apiKey && apiKey.startsWith('sk-or-'))
-      ? `OpenRouter [${model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra:free'}]`
-      : `OpenAI [${model || process.env.OPENAI_MODEL || 'gpt-4o'}]`
+    ? isOpenRouter
+      ? `OpenRouter [${displayModel}]`
+      : `OpenAI [${displayModel}]`
     : 'Deterministic Creative Designer (Offline)';
 
   console.log(`\n🎨 ElevateWeb LLM-Native HTML/CSS Creative Renderer [Phase 3.1]`);
