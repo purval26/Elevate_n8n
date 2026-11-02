@@ -124,4 +124,91 @@ describe('HtmlCreativeDesigner: Generation Contract & Brand Integrity', () => {
     assert.ok(html.includes('DNS Powers Every Web Request'));
     assert.ok(html.includes('dig +trace elevateweb.io A'));
   });
+
+  it('demonstrates distinct visual composition families across slides without repeating identical cards', async () => {
+    const designer = new HtmlCreativeDesigner({ offline: true });
+    const html = await designer.generateCarouselHtml(mockPackage);
+
+    // Verify slide 1 has huge editorial display styling
+    assert.ok(
+      html.includes('font-size:74px') || html.includes('font-size: 74px'),
+      'Slide 1 must have huge display headline',
+    );
+    // Verify slide 2 includes inline SVG technical schematic
+    assert.ok(html.includes('svg viewBox="0 0 920 480"'), 'Slide 2 must have inline SVG schematic');
+    // Verify slide 3 includes dual column tradeoff matrix
+    assert.ok(
+      html.includes('ARCHITECTURAL TRADEOFF MATRIX'),
+      'Slide 3 must have comparison matrix',
+    );
+    // Verify slide 4 includes terminal window
+    assert.ok(html.includes('TERMINAL EXECUTION'), 'Slide 4 must feature terminal container');
+    // Verify slide 5 includes systems engineering takeaway seal
+    assert.ok(html.includes('KEY ARCHITECTURAL TAKEAWAY'), 'Slide 5 must feature takeaway badge');
+  });
+
+  it('supports live LLM generation with custom/mocked client', async () => {
+    const mockLlmHtml = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    @font-face { font-family: 'Outfit'; src: url('data:font/truetype;charset=utf-8;base64,mock'); }
+    @font-face { font-family: 'Space Mono'; src: url('data:font/truetype;charset=utf-8;base64,mock'); }
+    .slide { width: 1080px; height: 1350px; overflow: hidden; position: relative; }
+  </style>
+</head>
+<body>
+  <section class="slide" data-slide="1"><h1>Slide 1</h1></section>
+  <section class="slide" data-slide="2"><h1>Slide 2</h1></section>
+  <section class="slide" data-slide="3"><h1>Slide 3</h1></section>
+  <section class="slide" data-slide="4"><h1>Slide 4</h1></section>
+  <section class="slide" data-slide="5"><h1>Slide 5</h1></section>
+</body>
+</html>`;
+
+    const mockClient = {
+      chat: {
+        completions: {
+          create: async () => ({
+            choices: [{ message: { content: mockLlmHtml } }],
+          }),
+        },
+      },
+    };
+
+    const designer = new HtmlCreativeDesigner({
+      offline: false,
+      openAiClient: mockClient,
+      model: 'nvidia/nemotron-3-ultra:free',
+    });
+
+    const html = await designer.generateCarouselHtml(mockPackage);
+    assert.ok(html.includes('Slide 1'));
+    assert.ok(html.includes('id="Layer_1"'));
+    assert.ok(html.includes('ELEVATEWEB'));
+  });
+
+  it('gracefully falls back to deterministic designer when live LLM call fails', async () => {
+    const failingClient = {
+      chat: {
+        completions: {
+          create: async () => {
+            throw new Error('OpenRouter upstream 503 Service Unavailable');
+          },
+        },
+      },
+    };
+
+    const designer = new HtmlCreativeDesigner({
+      offline: false,
+      openAiClient: failingClient,
+      model: 'nvidia/nemotron-3-ultra:free',
+    });
+
+    const html = await designer.generateCarouselHtml(mockPackage);
+    assert.ok(html.includes('<!doctype html>'));
+    assert.ok(html.includes('What Actually Happens When You Type a URL?'));
+    assert.ok(html.includes('id="Layer_1"'));
+  });
 });

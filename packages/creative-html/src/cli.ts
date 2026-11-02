@@ -2,20 +2,32 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
 import { renderHtmlCarousel } from './renderer.ts';
 import type { CarouselPackage } from '../../types/src/index.ts';
 
+// Load .env from project root if present
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+dotenv.config();
+
 function printHelp(): void {
   console.log(`
-ElevateWeb HTML Creative Renderer CLI (Phase 3)
+ElevateWeb HTML Creative Renderer CLI (Phase 3.1)
 
 Usage:
   npm run render-html -- <path-to-carousel.json> [options]
 
 Options:
-  -o, --output <dir>   Output directory (default: ./output/html-carousel)
-  --offline            Force offline deterministic generation (default: true)
-  -h, --help           Show help
+  -o, --output <dir>    Output directory (default: ./output/html-carousel)
+  --live, --ai          Enable live LLM creative generation (OpenRouter / OpenAI)
+  --offline             Force offline deterministic generation (default when no key is present)
+  --model <model>       Model name (default: nvidia/nemotron-3-ultra:free or gpt-4o)
+  --api-key <key>       API key (overrides OPENROUTER_API_KEY / OPENAI_API_KEY)
+  --base-url <url>      Custom API baseURL (e.g. https://openrouter.ai/api/v1)
+  -h, --help            Show help
 `);
 }
 
@@ -29,7 +41,10 @@ async function main(): Promise<void> {
 
   let inputPath: string | null = null;
   let outputDir = './output/html-carousel';
-  let offline = true;
+  let offline: boolean | undefined = undefined;
+  let model: string | undefined = undefined;
+  let apiKey: string | undefined = undefined;
+  let baseURL: string | undefined = undefined;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!;
@@ -37,6 +52,14 @@ async function main(): Promise<void> {
       outputDir = args[++i] || outputDir;
     } else if (arg === '--offline') {
       offline = true;
+    } else if (arg === '--live' || arg === '--ai') {
+      offline = false;
+    } else if (arg === '--model') {
+      model = args[++i];
+    } else if (arg === '--api-key') {
+      apiKey = args[++i];
+    } else if (arg === '--base-url') {
+      baseURL = args[++i];
     } else if (!arg.startsWith('-')) {
       inputPath = arg;
     }
@@ -65,14 +88,27 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  console.log(`\n🎨 ElevateWeb LLM-Native HTML/CSS Creative Renderer [Phase 3]`);
+  // Determine provider mode for terminal banner
+  const hasKey = apiKey || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+  const isRunningLive = offline === false || (offline === undefined && Boolean(hasKey));
+  const providerLabel = isRunningLive
+    ? process.env.OPENROUTER_API_KEY || (apiKey && apiKey.startsWith('sk-or-'))
+      ? `OpenRouter [${model || process.env.OPENROUTER_MODEL || 'nvidia/nemotron-3-ultra:free'}]`
+      : `OpenAI [${model || process.env.OPENAI_MODEL || 'gpt-4o'}]`
+    : 'Deterministic Creative Designer (Offline)';
+
+  console.log(`\n🎨 ElevateWeb LLM-Native HTML/CSS Creative Renderer [Phase 3.1]`);
   console.log(`📄 Input: ${path.basename(resolvedInput)} ("${carouselPackage.topic.title}")`);
+  console.log(`🧠 Mode: ${providerLabel}`);
 
   const startTime = Date.now();
   try {
     const result = await renderHtmlCarousel(carouselPackage, {
       outputDir,
-      offline,
+      offline: isRunningLive ? false : true,
+      apiKey,
+      model,
+      baseURL,
     });
 
     const elapsed = Date.now() - startTime;

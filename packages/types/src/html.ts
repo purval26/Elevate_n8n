@@ -32,6 +32,10 @@ export interface HtmlRenderOptions {
   offline?: boolean;
   allowFallback?: boolean;
   openAiApiKey?: string;
+  apiKey?: string;
+  openRouterApiKey?: string;
+  model?: string;
+  baseURL?: string;
 }
 
 export const HtmlValidationResultSchema = z.object({

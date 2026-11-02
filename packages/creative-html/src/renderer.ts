@@ -35,8 +35,12 @@ export async function renderHtmlCarousel(
 
   // 2. Generate Creative HTML
   const designer = new HtmlCreativeDesigner({
-    offline: options?.offline ?? true,
+    offline: options?.offline,
+    apiKey: options?.apiKey,
     openAiApiKey: options?.openAiApiKey,
+    openRouterApiKey: options?.openRouterApiKey,
+    model: options?.model,
+    baseURL: options?.baseURL,
   });
 
   let html: string;
