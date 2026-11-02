@@ -1,0 +1,18 @@
+{
+  "name": "@elevate/creative-html",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@elevate/types": "1.0.0",
+    "@elevate/prompts": "1.0.0",
+    "@elevate/renderer": "1.0.0",
+    "@elevate/visual-director": "1.0.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "zod": "^3.24.2"
+  }
+}

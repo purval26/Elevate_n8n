@@ -28,7 +28,8 @@
       "@elevate/prompts": ["./packages/prompts/src/index.ts"],
       "@elevate/content": ["./packages/content/src/index.ts"],
       "@elevate/renderer": ["./packages/renderer/src/index.ts"],
-      "@elevate/visual-director": ["./packages/visual-director/src/index.ts"]
+      "@elevate/visual-director": ["./packages/visual-director/src/index.ts"],
+      "@elevate/creative-html": ["./packages/creative-html/src/index.ts"]
     }
   },
   "include": ["apps/**/*", "packages/**/*"],

@@ -6,6 +6,7 @@ export * from './carousel.ts';
 export * from './database.ts';
 export * from './errors.ts';
 export * from './visual.ts';
+export * from './html.ts';
 
 /**
  * Convenience aliases for Topic and Source schemas per PROJECT.md interface contract.
